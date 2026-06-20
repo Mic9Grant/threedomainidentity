@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Domain Progress System - Danvion Michael Grant</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .domain-card {
+            border-left: 4px solid transparent;
+        }
+        .domain-career { border-left-color: #3b82f6; } /* Blue */
+        .domain-skill { border-left-color: #8b5cf6; } /* Purple */
+        .domain-stability { border-left-color: #10b981; } /* Emerald */
+
+        .slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Print Styles for PDF Generation */
+        @media print {
+            body { background-color: white; }
+            header, footer, #intro, #input-section, #how-to-section, .no-print { display: none !important; }
+            #results { display: block !important; margin-top: 0; }
+            .shadow-md, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd; }
+            .container { max-width: 100% !important; padding: 0 !important; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white py-10 shadow-lg relative overflow-hidden">
+        <!-- Background subtle pattern -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none">
+             <svg width="100%" height="100%">
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+             </svg>
+        </div>
+
+        <div class="container mx-auto px-4 max-w-5xl flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+            <!-- Trilateral Logo -->
+            <div class="flex-shrink-0">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-2xl">
+                    <defs>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <!-- Stability (Green) - Bottom Left Base -->
+                    <path d="M60 65 L20 100 H55 L75 80 Z" fill="#10b981" /> 
+                    <path d="M15 105 L55 65 L60 70 L25 110 Z" fill="#059669" /> <!-- Depth shade -->
+                    
+                    <!-- Skill (Purple) - Bottom Right Base -->
+                    <path d="M65 65 L105 100 H70 L50 80 Z" fill="#8b5cf6" />
+                    <path d="M110 105 L70 65 L65 70 L100 110 Z" fill="#7c3aed" /> <!-- Depth shade -->
+
+                    <!-- Career (Blue) - Top Apex -->
+                    <path d="M60 55 L25 20 H95 L60 55 Z" fill="#3b82f6" />
+                    <path d="M60 45 L95 15 L25 15 L60 45 Z" fill="#2563eb" opacity="0.5" /> <!-- Facet -->
+
+                    <!-- Central Convergence (White Core) -->
+                    <circle cx="60" cy="60" r="8" fill="white" class="animate-pulse" />
+                    
+                    <!-- Stylized Triangle Outline -->
+                    <path d="M60 10 L110 110 H10 L60 10 Z" stroke="white" stroke-width="2" stroke-opacity="0.3" fill="none" />
+                </svg>
+            </div>
+
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl font-bold mb-3 tracking-tight">3 Domain Progress System</h1>
+                <h2 class="text-xl md:text-2xl text-blue-400 font-medium mb-4">Danvion Michael Grant</h2>
+                <p class="text-slate-400 text-lg border-t border-slate-700 pt-4 mt-2 inline-block">Architecting High Performance through Balance</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl space-y-12">
+
+        <!-- Section 1: Introduction & User Input -->
+        <section id="intro" class="bg-white rounded-xl shadow-md p-6 md:p-8 animate-fade-in">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Initialize Your System</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        The system partitions all professional and personal growth activities into three non-overlapping domains. 
+                        Sustainable high performance requires a dynamic equilibrium between Output, Growth, and Resilience.
+                        Enter your details to begin the diagnostic.
+                    </p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                            <input type="text" id="userName" placeholder="e.g. Alex Mercer" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Field of Work or Study</label>
+                            <input type="text" id="userField" placeholder="e.g. Software Engineering, Digital Marketing" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-6 border border-blue-100">
+                    <h3 class="font-bold text-blue-900 mb-3"><i class="fas fa-info-circle mr-2"></i>Core Philosophy</h3>
+                    <ul class="space-y-3 text-sm text-blue-800">
+                        <li class="flex items-start"><i class="fas fa-check mt-1 mr-2 text-blue-500"></i><span><strong>Output without Systems</strong> leads to burnout.</span></li>
+                        <li class="flex items-start"><i class="fas fa-check mt-1 mr-2 text-blue-500"></i><span><strong>Skills without Application</strong> remain theoretical.</span></li>
+                        <li class="flex items-start"><i class="fas fa-check mt-1 mr-2 text-blue-500"></i><span><strong>Stability without Growth</strong> leads to stagnation.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Three Domains (Educational) -->
+        <section class="no-print">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-indigo-600 pl-4">The Three Domain Architecture</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <!-- Domain 1 -->
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-lg p-6 domain-card domain-career card-hover group">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-slate-800">Career / Creative</h3>
+                        <i class="fas fa-rocket text-blue-500 text-2xl group-hover:scale-110 transition"></i>
+                    </div>
+                    <div class="text-xs font-bold uppercase tracking-wide text-blue-600 mb-2">Output Engine</div>
+                    <p class="text-slate-600 text-sm mb-4 min-h-[60px]">Generates value, revenue, and external results. This is where you "ship" work.</p>
+                    
+                    <div class="bg-slate-50 rounded p-3 mb-3 border border-slate-100">
+                        <span class="block text-xs font-semibold text-slate-500 uppercase">The Trap</span>
+                        <span class="text-red-500 font-bold text-sm">The Burnout Trap</span>
+                        <p class="text-xs text-slate-500 mt-1">High output masking weak infrastructure.</p>
+                    </div>
+                </div>
+
+                <!-- Domain 2 -->
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-lg p-6 domain-card domain-skill card-hover group">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-slate-800">Skill / Knowledge</h3>
+                        <i class="fas fa-brain text-purple-500 text-2xl group-hover:scale-110 transition"></i>
+                    </div>
+                    <div class="text-xs font-bold uppercase tracking-wide text-purple-600 mb-2">Growth Engine</div>
+                    <p class="text-slate-600 text-sm mb-4 min-h-[60px]">Increasing capability. Active learning and certification.</p>
+                    
+                    <div class="bg-slate-50 rounded p-3 mb-3 border border-slate-100">
+                        <span class="block text-xs font-semibold text-slate-500 uppercase">The Trap</span>
+                        <span class="text-yellow-600 font-bold text-sm">The Theory Trap</span>
+                        <p class="text-xs text-slate-500 mt-1">Accumulating knowledge without application.</p>
+                    </div>
+                </div>
+
+                <!-- Domain 3 -->
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-lg p-6 domain-card domain-stability card-hover group">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-slate-800">Stability / Systems</h3>
+                        <i class="fas fa-shield-alt text-emerald-500 text-2xl group-hover:scale-110 transition"></i>
+                    </div>
+                    <div class="text-xs font-bold uppercase tracking-wide text-emerald-600 mb-2">Resilience Engine</div>
+                    <p class="text-slate-600 text-sm mb-4 min-h-[60px]">Managing risk, admin, health. The foundation that supports risk.</p>
+                    
+                    <div class="bg-slate-50 rounded p-3 mb-3 border border-slate-100">
+                        <span class="block text-xs font-semibold text-slate-500 uppercase">The Trap</span>
+                        <span class="text-orange-500 font-bold text-sm">The Stagnation Trap</span>
+                        <p class="text-xs text-slate-500 mt-1">Perfect organization with zero shipping.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Interactive Assessment -->
+        <section id="input-section" class="bg-white rounded-xl shadow-md p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Performance Diagnostic</h2>
+            <p class="text-slate-500 mb-8">Rate your current status (1-10) in each domain.</p>
+
+            <div class="space-y-8">
+                <!-- Career Input -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                        <label class="font-bold text-slate-700"><i class="fas fa-rocket text-blue-500 mr-2"></i>Career & Output</label>
+                        <span id="val-career" class="text-blue-600 font-bold text-lg">5</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" id="range-career" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                </div>
+
+                <!-- Skill Input -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                        <label class="font-bold text-slate-700"><i class="fas fa-brain text-purple-500 mr-2"></i>Skill & Knowledge</label>
+                        <span id="val-skill" class="text-purple-600 font-bold text-lg">5</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" id="range-skill" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+                </div>
+
+                <!-- Stability Input -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                        <label class="font-bold text-slate-700"><i class="fas fa-shield-alt text-emerald-500 mr-2"></i>Stability & Systems</label>
+                        <span id="val-stability" class="text-emerald-600 font-bold text-lg">5</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" id="range-stability" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                </div>
+
+                <div class="pt-4">
+                    <button onclick="calculateProgress()" class="w-full md:w-auto bg-slate-800 text-white px-8 py-3 rounded-lg font-bold hover:bg-slate-700 transition shadow-lg flex items-center justify-center">
+                        <i class="fas fa-chart-pie mr-2"></i> Generate System Report
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Results & Visualization -->
+        <section id="results" class="hidden animate-fade-in space-y-8">
+            <h2 class="text-2xl font-bold text-slate-800 border-l-4 border-slate-800 pl-4">System Analysis Report</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Chart Area -->
+                <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center border border-slate-100">
+                    <h3 class="font-bold text-slate-600 mb-4">Domain Energy Distribution</h3>
+                    <div class="w-full max-w-xs relative">
+                        <canvas id="progressChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span id="total-score-display" class="text-2xl font-bold text-slate-700"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Analysis Area -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-100">
+                    <h3 class="font-bold text-slate-600 mb-2">Diagnostic for <span id="display-name" class="text-blue-600">User</span></h3>
+                    <div id="status-badge" class="inline-block px-4 py-2 rounded-full font-bold text-sm mb-4 bg-gray-100 text-gray-600">Pending</div>
+                    <p id="analysis-text" class="text-slate-600 mb-4 leading-relaxed text-sm">Run diagnostic...</p>
+                    
+                    <div class="bg-slate-50 border-l-4 border-slate-300 p-4 rounded-r mb-4">
+                        <h4 class="font-bold text-slate-800 text-xs uppercase mb-2">Immediate Corrective Protocol</h4>
+                        <ul id="action-list" class="text-sm text-slate-600 space-y-1 list-disc list-inside"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Metrics Discussion -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-indigo-500 mr-2"></i> Optimal Performance Metrics
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-600 uppercase mb-2">Performance Drivers (What Raises Score)</h4>
+                        <ul class="text-sm space-y-2 text-slate-600">
+                            <li class="flex items-start"><i class="fas fa-plus text-green-500 mt-1 mr-2"></i> <strong>System Strength:</strong> High Stability score enables sustainable high Output.</li>
+                            <li class="flex items-start"><i class="fas fa-plus text-green-500 mt-1 mr-2"></i> <strong>Active Application:</strong> Using Skills to solve Career bottlenecks (Inter-Domain Synthesis).</li>
+                            <li class="flex items-start"><i class="fas fa-plus text-green-500 mt-1 mr-2"></i> <strong>Evidence of Completion:</strong> Defining binary success criteria ("Shipped") vs vague "working on".</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-600 uppercase mb-2">Performance Anchors (What Lowers Score)</h4>
+                        <ul class="text-sm space-y-2 text-slate-600">
+                            <li class="flex items-start"><i class="fas fa-minus text-red-500 mt-1 mr-2"></i> <strong>The Fragility Gap:</strong> Having Output > Stability + 2. This indicates you are borrowing energy from your future health.</li>
+                            <li class="flex items-start"><i class="fas fa-minus text-red-500 mt-1 mr-2"></i> <strong>Passive Consumption:</strong> Reading/Watching without building projects (Theory Trap).</li>
+                            <li class="flex items-start"><i class="fas fa-minus text-red-500 mt-1 mr-2"></i> <strong>Admin Debt:</strong> Low Stability means cognitive load is wasted on "keeping the lights on".</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                     <h4 class="font-bold text-sm text-slate-600 uppercase mb-2">Detailed Analysis Breakdown</h4>
+                     <div id="detailed-feedback" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                         <!-- Populated via JS -->
+                     </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col md:flex-row gap-4 no-print">
+                <button onclick="downloadReport()" class="flex-1 bg-slate-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-600 transition flex items-center justify-center">
+                    <i class="fas fa-file-alt mr-2"></i> Download Text Report
+                </button>
+                <button onclick="window.print()" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-500 transition flex items-center justify-center">
+                    <i class="fas fa-file-pdf mr-2"></i> Print / Save as PDF
+                </button>
+            </div>
+        </section>
+
+        <!-- Section 5: How to Achieve Balance -->
+        <section id="how-to-section" class="bg-indigo-900 text-white rounded-xl shadow-lg p-8 no-print">
+            <h2 class="text-2xl font-bold mb-4">How to Achieve Balance</h2>
+            <p class="text-indigo-200 mb-6">
+                Based on the Michael D. Grant framework, balance is not about spending equal time in all domains every day. It is about <strong>Dynamic Equilibrium</strong>.
+            </p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-indigo-800/50 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-100 mb-2">1. The Rule of Support</h4>
+                    <p class="text-sm text-indigo-300">If you increase Career Output targets, you MUST proportionally increase Stability (Sleep/Finance) to support the new load.</p>
+                </div>
+                <div class="bg-indigo-800/50 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-100 mb-2">2. Inter-Domain Synthesis</h4>
+                    <p class="text-sm text-indigo-300">Use your Skills to fix Career bottlenecks. Use Stability work (SOPs) to free up mental energy for Creative work.</p>
+                </div>
+                <div class="bg-indigo-800/50 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-100 mb-2">3. Seasonal Focus</h4>
+                    <p class="text-sm text-indigo-300">It is okay to have a "Stability Sprint" where you fix your life but ship nothing, provided it is a temporary strategic choice.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-12 text-center text-sm no-print">
+        <div class="container mx-auto px-4">
+            <p class="mb-2">Based on the framework by Michael D. Grant.</p>
+            <p class="text-slate-500">&copy; Copyright 2026 Danvion Michael Grant. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Slider Visual Feedback
+        const sliders = ['career', 'skill', 'stability'];
+        sliders.forEach(id => {
+            const range = document.getElementById(`range-${id}`);
+            const display = document.getElementById(`val-${id}`);
+            range.addEventListener('input', (e) => {
+                display.innerText = e.target.value;
+            });
+        });
+
+        let myChart = null;
+        let generatedReportText = "";
+
+        function calculateProgress() {
+            // 1. Get User Input
+            const name = document.getElementById('userName').value || "User";
+            const field = document.getElementById('userField').value || "General";
+            const careerScore = parseInt(document.getElementById('range-career').value);
+            const skillScore = parseInt(document.getElementById('range-skill').value);
+            const stabilityScore = parseInt(document.getElementById('range-stability').value);
+
+            // 2. Show Results Section
+            const resultsSection = document.getElementById('results');
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            document.getElementById('display-name').innerText = name + (field !== "General" ? ` (${field})` : "");
+
+            // 3. Logic & Analysis
+            const total = careerScore + skillScore + stabilityScore;
+            
+            // Trap Detection Variables
+            let statusTitle = "Balanced System";
+            let statusColor = "bg-green-100 text-green-700 border-green-200";
+            let analysis = "Your ecosystem is relatively balanced. You are maintaining a healthy ratio between output, growth, and stability.";
+            let actions = ["Continue your weekly review process.", "Look for micro-optimizations in your workflow.", "Ensure your 'Primary Outcome' for the year is clear."];
+            let detailedFeedback = "";
+
+            // Advanced Metrics Logic
+            const fragilityGap = careerScore - stabilityScore; // Positive means dangerous
+            const growthDelta = skillScore - careerScore; // Positive means learning > doing
+
+            // DETECT TRAPS
+            if (careerScore >= 7 && stabilityScore <= 4) {
+                // BURNOUT TRAP
+                statusTitle = "⚠️ ALERT: Burnout Trap Detected";
+                statusColor = "bg-red-100 text-red-700 border-red-200";
+                analysis = "You are generating high output (Career) but your infrastructure (Stability) is weak. This is 'Fragile.' You are likely running on adrenaline. A crisis (health or financial) could derail your progress.";
+                actions = [
+                    "<strong>Immediate Freeze:</strong> Stop taking on new projects/clients.",
+                    "<strong>Stability Sprint:</strong> Dedicate the next week solely to admin, finance, and sleep.",
+                    "<strong>Automate:</strong> Identify one repetitive task and create an SOP or hire help."
+                ];
+                detailedFeedback = `Your Fragility Gap is ${fragilityGap} points. In the Danvion System, any gap over 2 points is critical. You are building a skyscraper on a swamp. Your High Output is masking structural weakness. High performance requires "System Strength" (Stability) to be equal to or greater than Output demands.`;
+            }
+            else if (stabilityScore >= 7 && careerScore <= 3) {
+                // STAGNATION TRAP
+                statusTitle = "⚠️ ALERT: Stagnation Trap Detected";
+                statusColor = "bg-orange-100 text-orange-700 border-orange-200";
+                analysis = "Your systems are perfect, your files are organized, and your desk is clean, but you aren't shipping enough value. You are 'procrastinating via organization.'";
+                actions = [
+                    "<strong>Lower the Bar:</strong> Adopt the 'Shitty Draft' protocol. Ship something imperfect tomorrow.",
+                    "<strong>Focus on Revenue:</strong> Stop course-taking and start selling/presenting.",
+                    "<strong>Evidence check:</strong> Define binary 'Evidence of Completion' for this week."
+                ];
+                detailedFeedback = `You have fallen into the "Architect's Trap." Your systems are robust (Score: ${stabilityScore}), but they are not serving a purpose because Output is low (Score: ${careerScore}). Organization is only useful if it accelerates shipping. Stop optimizing your tools and start using them.`;
+            }
+            else if (skillScore >= 7 && careerScore <= 3) {
+                // THEORY TRAP
+                statusTitle = "⚠️ ALERT: Theory Trap Detected";
+                statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200";
+                analysis = "You are learning rapidly but not converting that potential energy into kinetic output. You are a 'Professional Student.' Knowledge without application is merely entertainment.";
+                actions = [
+                    "<strong>Project-Based Learning:</strong> Stop watching tutorials. Build a project using your new skill.",
+                    "<strong>Teach It:</strong> Write a blog post or guide about what you just learned.",
+                    "<strong>Monetize:</strong> Find one way to use this skill to solve a problem for someone else."
+                ];
+                detailedFeedback = `Your Growth Delta is ${growthDelta}. You are accumulating potential energy (Skills) but failing to release it as value (Career). In the Danvion system, "Skill" is only valuable if it resolves a "Career" bottleneck. Identify one problem in your work today and apply a specific skill to solve it immediately.`;
+            }
+            else if (total < 12) {
+                // LOW ENERGY
+                statusTitle = "System Depletion";
+                statusColor = "bg-gray-200 text-gray-700 border-gray-300";
+                analysis = "Your total system energy is low across all domains. You may be disengaged or recovering from a major setback.";
+                actions = [
+                    "<strong>Reconnect with Vision:</strong> Redo your Annual Direction Setting.",
+                    "<strong>Small Wins:</strong> Pick ONE domain to improve by 1 point this week.",
+                    "<strong>Energy Audit:</strong> Check your sleep and nutrition first."
+                ];
+                detailedFeedback = "Your system is underpowered. This often happens when the 'Why' is lost. Revisit your Annual Direction. Are your goals actually yours, or are they external expectations?";
+            }
+            else {
+                // BALANCED
+                detailedFeedback = "Your system shows healthy 'Dynamic Equilibrium.' Your Stability is sufficient to support your Output, and your Skills are growing in lockstep. To optimize further, look for 'Inter-Domain Synthesis'—how can a new Skill automate a Stability task to free up more Career time?";
+            }
+
+            // Update UI Text
+            const badge = document.getElementById('status-badge');
+            badge.className = `inline-block px-4 py-2 rounded-full font-bold text-sm mb-4 border ${statusColor}`;
+            badge.innerText = statusTitle;
+
+            document.getElementById('analysis-text').innerHTML = analysis;
+            document.getElementById('detailed-feedback').innerHTML = detailedFeedback;
+
+            const actionList = document.getElementById('action-list');
+            actionList.innerHTML = actions.map(item => `<li class="mb-1">${item}</li>`).join('');
+
+            // Generate Text Report Content for Download
+            generatedReportText = `DANVION MICHAEL GRANT - 3 DOMAIN PROGRESS SYSTEM REPORT
+-------------------------------------------------------
+User: ${name}
+Field: ${field}
+Date: ${new Date().toLocaleDateString()}
+
+SCORES
+-------------------------------------------------------
+Career / Output:    ${careerScore}/10
+Skill / Knowledge:  ${skillScore}/10
+Stability / Systems: ${stabilityScore}/10
+Total System Energy: ${total}/30
+
+DIAGNOSTIC RESULT
+-------------------------------------------------------
+Status: ${statusTitle.replace('⚠️ ALERT: ', '')}
+
+Analysis:
+${analysis}
+
+DETAILED FEEDBACK
+-------------------------------------------------------
+${detailedFeedback}
+
+METRICS ANALYSIS (What Raised/Lowered Performance)
+-------------------------------------------------------
+[+] POSITIVE DRIVERS OBSERVED:
+- If Stability is High: You have "System Strength," allowing you to handle risk.
+- If Skill is High: You have "Growth Potential," but ensure it is applied.
+
+[-] NEGATIVE DRIVERS DETECTED:
+- Fragility Gap (Output - Stability): ${fragilityGap} (Should be <= 0 for resilience).
+- If this gap is positive, your output is unsustainable.
+- If this gap is extremely negative, you are stagnating.
+
+RECOMMENDED ACTION PROTOCOL
+-------------------------------------------------------
+${actions.map(a => '- ' + a.replace(/<strong>/g, '').replace(/<\/strong>/g, '')).join('\n')}
+
+-------------------------------------------------------
+© Copyright 2026 Danvion Michael Grant. All rights reserved.
+`;
+
+            // 4. Update Chart
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Career / Output', 'Skill / Growth', 'Stability / Systems'],
+                    datasets: [{
+                        label: 'System Score',
+                        data: [careerScore, skillScore, stabilityScore],
+                        backgroundColor: [
+                            '#3b82f6', // Blue
+                            '#8b5cf6', // Purple
+                            '#10b981'  // Emerald
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function downloadReport() {
+            if (!generatedReportText) {
+                alert("Please generate the report first by clicking 'Generate System Report'.");
+                return;
+            }
+            const blob = new Blob([generatedReportText], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Danvion_System_Report.txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
